@@ -2,7 +2,7 @@
 
 namespace Sqs.Consumer.Models.Messages
 {
-    public class CreateMessage : IRequest
+    public class CreateMessage : ISqsMessage
     {
         public Guid Id { get; set; }
         public string MessageText { get; set; }

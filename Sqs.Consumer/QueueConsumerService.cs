@@ -1,8 +1,9 @@
 ﻿using Amazon.SQS;
 using Amazon.SQS.Model;
+using MediatR;
 using Microsoft.Extensions.Options;
 using Sqs.Consumer.Configs;
-using Sqs.Consumer.Models.Messages;
+using Sqs.Consumer.Models;
 using System.Text.Json;
 
 namespace Sqs.Consumor.Console
@@ -11,12 +12,16 @@ namespace Sqs.Consumor.Console
     {
         private readonly IAmazonSQS _sqs;
         private readonly IOptions<QueueSettings> _queueSettings;
+        private readonly IMediator _mediator;
+        private readonly ILogger<QueueConsumerService> _logger;
         private string? _queueUrl;
 
-        public QueueConsumerService(IAmazonSQS sqs, IOptions<QueueSettings> queueSettings)
+        public QueueConsumerService(IAmazonSQS sqs, IOptions<QueueSettings> queueSettings, IMediator mediator, ILogger<QueueConsumerService> logger)
         {
             _sqs = sqs;
             _queueSettings = queueSettings;
+            _mediator = mediator;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,19 +40,23 @@ namespace Sqs.Consumor.Console
                 foreach (var message in response.Messages)
                 {
                     var messageType = message.MessageAttributes["MessageType"].StringValue;
-                    switch (messageType)
+                    var type = Type.GetType($"Sqs.Consumer.Models.Messages.{messageType}");
+                    if(type is null)
                     {
-                        case nameof(CreateMessage):
-                            var created = JsonSerializer.Deserialize<CreateMessage>(message.Body);
+                        _logger.LogWarning("Message type unknown {messageType}", messageType);
+                        continue;
+                    }
 
-                            break;
-                        case nameof(DeleteMessage):
+                    var typedMessage = (ISqsMessage) JsonSerializer.Deserialize(message.Body, type)!;
 
-                            break;
-                        case nameof(UpdateMessage):
-
-                            break;
-
+                    try
+                    {
+                        await _mediator.Send(typedMessage, stoppingToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Message failed");
+                        continue;
                     }
 
                     await _sqs.DeleteMessageAsync(_queueUrl, message.ReceiptHandle, stoppingToken);

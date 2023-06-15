@@ -2,7 +2,7 @@
 
 namespace Sqs.Consumer.Models.Messages
 {
-    public class DeleteMessage: IRequest
+    public class DeleteMessage: ISqsMessage
     {
         public Guid Id { get; set; }
 
