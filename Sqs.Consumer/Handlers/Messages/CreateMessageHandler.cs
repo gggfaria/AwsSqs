@@ -5,9 +5,15 @@ namespace Sqs.Consumer.Handlers.Messages
 {
     public class CreateMessageHandler : IRequestHandler<CreateMessage>
     {
+        private readonly ILogger<CreateMessageHandler> _logger;
+        public CreateMessageHandler(ILogger<CreateMessageHandler> logger)
+        {
+            _logger = logger;
+        }
         public Task Handle(CreateMessage request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation(request.MessageText);
+            return Unit.Task;
         }
     }
 }

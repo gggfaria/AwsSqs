@@ -5,9 +5,16 @@ namespace Sqs.Consumer.Handlers.Messages
 {
     public class UpdateMessageHandler : IRequestHandler<UpdateMessage>
     {
+        private readonly ILogger<UpdateMessageHandler> _logger;
+        public UpdateMessageHandler(ILogger<UpdateMessageHandler> logger)
+        {
+            _logger = logger;
+        }
+
         public Task Handle(UpdateMessage request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation(request.MessageText);
+            return Unit.Task;
         }
     }
 }
