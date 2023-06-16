@@ -6,7 +6,7 @@ namespace Sqs.Api.Messaging.Mapping
 {
     public static class MappingMessages
     {
-        public static UpdateMessage ToCreate(this Message message) => new()
+        public static CreateMessage ToCreate(this Message message) => new()
         {
             Id = message.Id,
             MessageText = message.MessageText
