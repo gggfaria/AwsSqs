@@ -28,5 +28,23 @@ namespace Sqs.Api.Controllers
             return Ok(message);
 
         }
+
+        [HttpPut("message")]
+        public async Task<IActionResult> Update([FromBody] MessageUpdateDto request)
+        {
+            var message = _mapper.Map<Message>(request);
+            await _messageService.UpdateMessage(message);
+
+            return Ok(message);
+
+        }
+
+        [HttpDelete("message/{Guid:id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _messageService.DeleteMessage(id);
+
+            return NoContent();
+        }
     }
 }
