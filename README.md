@@ -52,7 +52,7 @@ Each one of them decides how to deal with the message received.
  - Create
 
 
- ## Runing 
+ ## Running  
 
  To run the project you have to configure AWS settings in your machine with your credentials. 
 
